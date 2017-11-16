@@ -1,6 +1,100 @@
 ### numpy用法
 numpy是快速操作结构数组的工具，经常和pandas结合在一起用（[查看网页](http://www.cnblogs.com/prpl/p/5537417.html)）
 
+> ndarray
+
+&emsp;&emsp;多维数组对象，可以直接参与运算。它是一个通用的**同构数据**多维容器，即其中所有元素必须是相同类型的，每个数组都有一个`shape`（表示各纬度大小的元组）和一个`dtype`（表明数组元素数据类型的对象）。
+
+> ndarray的创建
+```
+array = [1,2,3]
+narray = np.array(array) # array([1, 2, 3])
+np.array(array, dtype= np.float64) #创建时指定数据类型
+# np.asarray 区别：如果输入本身是ndarray就不进行复制，直接返回本身；而array都复制返回
+
+zero1 = np.zeros(2) # array([0, 0])
+zero2 = np.zeros((2, 3)) # 创建2行3列全为0的数组
+zero3 = np.zeros_like(narray) #创建形状与narray类似的全为0的数组
+# np.ones() np.ones_like() 可创建全为1的数组
+# np.empty() np.empty_like() 可以创建空的数组，但不是nan、None或0，而是未初始化的垃圾值
+
+np.arange(3) # array([0, 1, 2])，创建时也可以指定dtype=float来创建float类型的数组
+
+np.eye(N) # 和np.identity(N) 一样创建N*N的单位矩阵（对角线为1，其余为0）
+```
+
+> 数据类型
+- int8、uint8 (同8,16,32,64)有符号、无符号的n位整数
+- float16 (同16,32,64,128) n位浮点数
+- complex64 (同64,128,256) n位复数
+- bool 布尔值
+- object 对象类型
+- string_ 字符串类型
+- unicode_ unicode类型
+
+> 显式转换dtype
+```
+narray2 = narray1.astype(np.float64) 
+# 也可简单写成narray.astype(float)
+# astype返回复制而不是本身，即使dtype与原来相同也如此，
+# 因此narray1的类型不变，narray2为转换类型后的narray1的复制
+```
+
+> narray可以直接运算
+```
+na = np.arange(3, dtype=float) # [0., 1., 2.]
+na + 1       # array([1., 2., 3.])
+na * na      # array([0., 1., 4.]) 等同 na ** 2
+1 / (na + 1) # array([1., 0.5, 0.3333333333333])
+# 也可以直接进行逻辑运算
+na > 1       # array([False, False, True])
+```
+
+> narray多维数组
+```
+# 创建
+arr3d = np.array([[[1, 2], [3, 4]],[[5, 6], [7, 8]]])
+
+# 索引
+arr3d[0][1][1]
+arr3d[0,1,1] # 简化，python的list不支持
+
+# 赋值，标量和数组都可以
+arr3d[0, 1] = 3      # array([[[1, 2], [3, 3]],[[5, 6], [7, 8]]])
+arr3d[0, 1] = [4, 4] # array([[[1, 2], [4, 4]],[[5, 6], [7, 8]]])
+```
+
+> narray切片索引 [[python的list切片索引见网页]](https://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/0013868196352269f28f1f00aee485ea27e3c4e47f12bc7000)
+
+narray的切片与list的切片类似，但也有不同之处：
+- **narray的切片的返回并非复制，任何修改都会直接反映到源数组上！**
+    
+    原因：NumPy设计目的是处理大数据，若每次切片都复制会造成性能和内存问题。
+
+    ```
+    src = np.arange(5)
+    # src = array([0, 1, 2, 3, 4])
+
+    src[2:4] = 5
+    # src = array[0, 1, 5, 5, 4])，而python的list不支持这种操作。
+
+    part = src[0:2]
+    part[1] = 5
+    # part = array[0, 5]), src = array[0, 5, 5, 5, 4])
+
+    # 若想要得到复制，则需显示复制：
+    part = src[0:2].copy(
+    ```
+
+- narray还支持多轴切片：
+    ```
+    list = [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]
+    nlist = np.array(list)
+    nlist[1:, :1]   # array([[[5 6]]])，python的list不支持多轴切片
+    nlist[1, :1]    # array([[5 6]])，索引和切片混合可以降低纬度
+    nlist[:, :1]    # array([[[1, 2]], [[5, 6]]])，单:表示选取整个轴
+    ```
+
 > np.r_[] 和np.c_[]
 ```
 >>> a = np.array([1,2,3])
