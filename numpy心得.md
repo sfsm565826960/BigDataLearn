@@ -59,9 +59,28 @@ arr3d = np.array([[[1, 2], [3, 4]],[[5, 6], [7, 8]]])
 arr3d[0][1][1]
 arr3d[0,1,1] # 简化，python的list不支持
 
+# 布尔索引，要求布尔narray形状和narray一致。python的list不支持。
+bools = [[[True, False], [False, True]], [[True, True], [False, False]]]
+nbools = np.array(bools) # 不支持python的布尔数组索引，需转为narray
+arr3d[nbools]            # [1, 4, 5, 6]
+arr3d[arr3d > 4]         # [5, 6, 7, 8]，由narray的逻辑运算的布尔索引
+arr3d[(arr3d > 2) & (arr3d < 6)] # [3 4 5]，布尔索引支持&和、|或等运算
+arr3d[(arr3d < 2) | (arr3d > 6)] # [1 7 8]，注意and和or在布尔索引运算里无效
+
+# 花式索引：为了以特定的顺序选取行子集，需传入用于指定顺序的整数列表或narray
+arr3d[[1, 0]]            # array([[[5, 6], [7, 8]], [[1, 2], [3, 4]]])
+arr3d[1, [-1, 0]]        # array([[7, 8], [5, 6]])，支持负数索引
+# 传入多个整数列表有些特别：
+arr3d[[1, 0], [1, 0]]    # array([[7, 8], [1, 2]])，即返回[arr3d[1, 1], arr3d[0, 0]]
+# 若想对行和列以特定顺序选取，有两种方式：
+arr3d[[1, 0]][:, [1, 0]] # array([[[7, 8], [5, 6]], [[3, 4], [1, 2]]])
+arr3d[np.ix_([1, 0], [1, 0])] # 同上
+
 # 赋值，标量和数组都可以
 arr3d[0, 1] = 3      # array([[[1, 2], [3, 3]],[[5, 6], [7, 8]]])
 arr3d[0, 1] = [4, 4] # array([[[1, 2], [4, 4]],[[5, 6], [7, 8]]])
+# 布尔索引不支持数组赋值
+arr3d[arr3d < 5] = 0 # array([[[0, 0], [0, 0]],[[5, 6], [7, 8]]])
 ```
 
 > narray切片索引 [[python的list切片索引见网页]](https://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/0013868196352269f28f1f00aee485ea27e3c4e47f12bc7000)
@@ -91,9 +110,22 @@ narray的切片与list的切片类似，但也有不同之处：
     list = [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]
     nlist = np.array(list)
     nlist[1:, :1]   # array([[[5 6]]])，python的list不支持多轴切片
-    nlist[1, :1]    # array([[5 6]])，索引和切片混合可以降低纬度
     nlist[:, :1]    # array([[[1, 2]], [[5, 6]]])，单:表示选取整个轴
+    nlist[1, :1]    # array([[5 6]])，数字索引和切片混合可以降低纬度
+    nlist[np.array([False, True]), :1]  # array([[[5 6]]])，布尔索引不能降低纬度
     ```
+
+> narray转置和轴对换
+```
+# 对于二维矩阵，有个特殊T属性
+arr = np.arange(9).reshape(3, 3)
+arr.T
+
+# 对于高维矩阵，可以用transpose或swapaxes
+arr = np.arange(16).reshape(2,2,4)
+a1 = arr.transpose((1, 0, 2)) # 转置
+a2 = arr.swapaxes((1, 2))     # 轴对换
+```
 
 > np.r_[] 和np.c_[]
 ```
