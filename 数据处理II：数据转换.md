@@ -1,4 +1,4 @@
-# 数据预处理II：特征处理
+# 数据预处理II：数据转换
 > 下列数据来源[Kaggle的Titanic题目](https://www.kaggle.com/prkukunoor/TitanicDataset/data)
 
 > 特征分类
@@ -8,41 +8,6 @@
 - 数值特征 与 类别特征 需要分开处理
 
 --------------
-> 处理数值特征缺失
-
-要点：尽量保持原始信息状态。<br>
-方法：
-- 当缺少比例很小时，可以直接扔掉这部分样本数据；
-- 按某个统计量补全，可以是定值、均值、中位数等；
-- 拿模型预测缺失值。
-```
-#查看数据缺失的行
-print data[data.isnull().values == True] #查看全部有缺失的行
-print data[data.Age.isnull().values == True] #查看年龄有缺失的行
-
-#删除缺失样本
-data = data[data.Age.notnull()]
-
-#定值填充
-data.Age = data.Age.fillna(0)
-#或 data.Age.fillna(0, inplace=True)
-
-#均值填充
-data.loc[(data.Age.isnull()), 'Age'] = data.Age.dropna().mean()
-
-#用前后值填充
-#ffill 前一个有效值，bfill后一个有效值
-data.Age = data.Age.fillna(method='ffill')
-
-#取出某些值
-data = data[data.Age.isin(range(10,20))) #取出10-19岁的用户
-data = data[data.Age > 20] #取出20岁以上的用户
-```
-[pandas.DataFrame.fillna](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.fillna.html)<br>
-[pandas.DataFrame.loc](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.loc.html)<br>
-[pandas.DataFrame.dropna](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.dropna.html)<br>
-[pandas.DataFrame.isin](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.isin.html)<br>
-[range](http://www.runoob.com/python/python-func-range.html)
 > 数值特征归一化
 
 若几种数值特征不在同一可以比较的尺度上，则需要进行归一化
