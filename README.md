@@ -27,5 +27,6 @@
 
 > ## 其他
 - [numpy心得](numpy心得.md)
+- [Hadoop基础知识](Hadoop基础知识.md)
 
 <pre>说明：标*表示正在编写中</pre>
