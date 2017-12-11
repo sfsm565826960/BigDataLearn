@@ -1,7 +1,11 @@
 # BigDataLearn
 
 > ## 大数据学习导图
+
+点击图片查看原图
 ![大数据分析总结](https://github.com/sfsm565826960/BigDataLearn/raw/master/%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93%EF%BC%88%E6%B0%B4%E5%8D%B0%EF%BC%89.png)
+
+<pre>说明：标*表示正在编写中</pre>
 
 > ## 数据获取
 - [数据获取与查看](数据获取与查看.md)
@@ -28,5 +32,3 @@
 > ## 其他
 - [numpy心得](numpy心得.md)
 - [Hadoop基础知识](Hadoop基础知识.md)
-
-<pre>说明：标*表示正在编写中</pre>
