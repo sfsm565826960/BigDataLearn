@@ -44,6 +44,7 @@ dtype: int64
 ```
 # 只要该行存在缺失值，就将该行删除
 data.dropna(axis='index', how='any', inplace=True)
+
 # 删除Embarked缺失的整行数据
 data = data[data.Embarked.notnull()]
 ```
