@@ -3,42 +3,52 @@
 
 > 特征分类
 
-- 数值特征：如年龄、票价等有数量关系的特征
-- 类别特征：如性别、几等舱等没有数量意义的特征
-- 数值特征 与 类别特征 需要分开处理
+- 定量特征：如年龄、票价等有数量关系的特征，可**二值化**或**函数变换**
+- 定性特征：如性别、几等舱等没有数量意义的特征，可**哑编码**或**函数变换**
 
---------------
-> 数值特征归一化
+&emsp;&emsp;定量特征 与 定性特征 需要分开处理
 
-若几种数值特征不在同一可以比较的尺度上，则需要进行归一化
-```
-from sklearn.preprocessing import StandardScaler
-scaler = StandardScaler()
-df['Age_scaled'] = scaler.fit_transform(data['Age']) #年龄
-df['Fare_scaled'] = scaler.fit_transform(data['Fare']) #票价
-```
-由于版本不同，有时会报错：`Expected 2D array, got 1D array instead`，我们可以暂用`data.Age.values.reshape(-1,1)`进行处理。
-```
-df['Age_scaled'] = scaler.fit_transform(data['Age'].values.reshape(-1,1)) #年龄
-df['Fare_scaled'] = scaler.fit_transform(data['Fare'].values.reshape(-1,1)) #票价
-```
-[sklearn.preprocessing.StandardScaler](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html)<br>
-[numpy.reshape](https://docs.scipy.org/doc/numpy/reference/generated/numpy.reshape.html)<br>
-[Expected 2D array, got 1D array instead](http://blog.csdn.net/llx1026/article/details/77940880)
+-------------
 
-------------------------
-> 处理类别特征缺失
-```
-# 客舱号Cabin缺少程度太严重，数据不可能有效恢复。
-# 虽然Cabin无法提取，但可以转换为“有没有在客舱”
-# 提醒：注意代码顺序不能反
-data.loc[data.Cabin.notnull(), 'Cabin'] = 'Yes' #在客舱
-data.loc[data.Cabin.isnull(), 'Cabin'] = 'No' #不在客舱
-```
-> 重建类别特征
+> 二值化[Binarizer](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.Binarizer)
 
-类别特征只有`是`与`不是`两个值。<br>
-因此对于几等舱Pclass(1等舱, 2等舱, 3等舱)等类别特征，需要按类重建特征：
+定量特征二值化的核心在于设定一个阈值，大于阈值的赋值为1，小于等于阈值的赋值为0
+```
+from sklearn.preprocessing import Binarizer
+binarizer = Binarizer(threshold=18, copy=True)
+data['Adult'] = binarizer.fit_transform(data['Age'])
+
+# 等同
+data['Adult'] = (data['Age'] > 18).astype(int)
+```
+
+----------
+
+> 哑编码[OneHotEncoder](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder)
+
+&emsp;&emsp;数据集中有很多变量类型是Nominal的，对于某些算法而言，完全的Nominal类型的变量是无法计算的，这就需要进行哑编码。
+
+&emsp;&emsp;哑编码是一种状态编码，可将定性特征转为数字，但这些数字没有大小关系。该特征有N类就有N位，某位对应一类，是该类标则该位标1，其余位标0，如：`001`，`010`，`100`，最终形成稀疏矩阵。
+
+```
+from sklearn.preprocessing import OneHotEncoder
+
+# 几等舱Pclass(1等舱, 2等舱, 3等舱)
+data['Pclass'] = OneHotEncoder().fit_transform(data['Pclass'].reshape(-1 ,1))
+
+# 输出
+print data['Pclass'].toarray()
+
+[ [ 0.  0.  1.]
+       ...
+  [ 0.  1.  0.] ]
+```
+
+&emsp;&emsp;这里遇到一个问题：OneHotEncoder编码Embarked会报错`ValueError: could not convert string to float: Q`，暂时未找到解决方法，若要好的解决方法请留言，谢谢。
+
+> 重建定性特征[pandas.get_dummies](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.get_dummies.html)
+
+- 定性特征只有`是`与`非`，因此也可拆分为多个二值化特征：
 ```
 dummies_pclass = pd.get_dummies(data['Pclass'], prefix='Pclass')
 
@@ -47,9 +57,7 @@ print dummies_pclass.head(2)
 |   0.0     |   0.0     |   1.0     |
 |   1.0     |   0.0     |   0.0     |
 ```
-[pandas.get_dummies](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.get_dummies.html)
-
-若像性别一样，只有两种类别，且非此即彼，则可：
+- 若像性别一样，只有两种类别，且非此即彼，则可：
 ```
 data.loc[data.Sex == 'female', 'Sex'] = 1
 data.loc[data.Sex == 'male', 'Sex'] = 0
@@ -59,12 +67,7 @@ print data.Sex.head(2)
 |   0   |
 |   1   |
 ```
-然而经测试，重建列表特征有利于提高准确率，因此尽量进行重建：
-```
-dummies_sex = pd.get_dummies(data['Sex'], prefix='Age')
-dummies_cabin = pd.get_dummies(data['Cabin'], prefix='Cabin')
-```
-对于缺失的特征，重建特征后每个标签值都为0：
+- 对于缺失的特征，重建特征后每个标签值都为0：
 ```
 # Embarked 登船港口有两条数据为null，重建特征后每个标签值为0
 dummies_embarked = pd.get_dummies(data['Embarked'], prefix='Embarked')
@@ -73,7 +76,9 @@ print dummies_embarked.loc[61] #其中Embarked为nan的数据
 |Embarked_C |Embarked_Q |Embarked_S |
 |   0.0     |   0.0     |   0.0     |
 ```
+
 ---------------
+
 > 构造非线性特征
 
 原因：线性模型就是把特征对分类结果的作用加起来（例如：Y = T1 + T2），但线性模型无法表示一些非线性的关系（如：Y = T1 * T2），所以我们打算人工构造一些新特征，弥补线性模型对非线性表达式表达能力的不足。
@@ -92,7 +97,9 @@ df['Child'] = (data['Age'] <= 18).astype(int)
 #设想头等舱的人能受到更好的保护待遇，同时年龄越小的越优先被救助，所以这两个特征是否有一些关联
 df['Age*Pclass_scaled'] = scaler.fit_transform(data['Age'] * data['Pclass'])
 ```
+
 ----------------------
+
 > 特征合并、删除、筛选
 ```
 df = pd.concat([df, dummies_embarked, dummies_sex, dummies_pclass, dummies_cabin], axis=1) #axis=0(index),1(columns)
