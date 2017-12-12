@@ -10,7 +10,7 @@
 
 -------------
 
-> 二值化[Binarizer](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.Binarizer)
+> 二值化 [Binarizer](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.Binarizer)
 
 定量特征二值化的核心在于设定一个阈值，大于阈值的赋值为1，小于等于阈值的赋值为0
 ```
@@ -24,7 +24,7 @@ data['Adult'] = (data['Age'] > 18).astype(int)
 
 ----------
 
-> 哑编码[OneHotEncoder](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder)
+> 哑编码 [OneHotEncoder](http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder)
 
 &emsp;&emsp;数据集中有很多变量类型是Nominal的，对于某些算法而言，完全的Nominal类型的变量是无法计算的，这就需要进行哑编码。
 
@@ -46,7 +46,7 @@ print data['Pclass'].toarray()
 
 &emsp;&emsp;这里遇到一个问题：OneHotEncoder编码Embarked会报错`ValueError: could not convert string to float: Q`，暂时未找到解决方法，若要好的解决方法请留言，谢谢。
 
-> 重建定性特征[pandas.get_dummies](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.get_dummies.html)
+> 重建定性特征 [pandas.get_dummies](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.get_dummies.html)
 
 - 定性特征只有`是`与`非`，因此也可拆分为多个二值化特征：
 ```
